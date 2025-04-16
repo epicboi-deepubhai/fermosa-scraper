@@ -5,7 +5,8 @@ import requests
 import re  
 import time 
 import sys
-
+import datetime
+import os
 
 
 class Sansevierias:
@@ -171,7 +172,11 @@ class Sansevierias:
         return None
 
 
-def main_without_threading():
+def resolve_path(name, dir_path):
+    return f'{dir_path}/{datetime.date.today()}-{name}.xlsx'
+
+
+def main_without_threading(dir_path, name):
     wb = Workbook()
     ws = wb.create_sheet("Non Threading output")
 
@@ -184,10 +189,11 @@ def main_without_threading():
     # for name in fermosa_scraper.name_set:
     #     print(name, end=', ')
 
-    wb.save('plantbook.xlsx')
+    wb.save(f'{dir_path}/{datetime.date.today()}-{name}.xlsx')
+    
 
 
-def main_with_threading():
+def main_with_threading(dir_path, name):
     wb = Workbook()
     ws = wb.create_sheet("Sansevierias")
 
@@ -209,18 +215,20 @@ def main_with_threading():
     fermosa_scraper.add_headers(headers)
         
     print(f'{len(fermosa_scraper.name_set)} distinct values found!')
-    wb.save('plantbook.xlsx')
+    wb.save(f'{dir_path}/{datetime.date.today()}-{name}.xlsx')  
 
 
 if __name__ == '__main__':
-    use_threading = sys.argv[1] != '--no-threading'
+    use_threading = '--no-threading' not in sys.argv
+    result_dir = 'results'
+    os.makedirs(result_dir, exist_ok=True)
     
     if use_threading:
         start = time.time()
-        main_with_threading()
+        main_with_threading(result_dir, 'plantbook')
         end = time.time()
     else:
         start = time.time()
-        main_without_threading()
+        main_without_threading(result_dir, 'plantbook')
         end = time.time()
     print(f'Script took {end-start:0.2f} seconds to execute')
